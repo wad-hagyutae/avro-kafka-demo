@@ -1,0 +1,80 @@
+import com.github.davidmc24.gradle.plugin.avro.GenerateAvroJavaTask
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.0.3'
+    id 'io.spring.dependency-management' version '1.1.0'
+
+    // .avsc -> java class 전환
+    id 'com.github.davidmc24.gradle.plugin.avro' version '1.6.0'
+    id 'com.github.davidmc24.gradle.plugin.avro-base' version '1.6.0'
+    // apicurio registry에 .avsc 업로드/다운로드
+    id 'net.croz.apicurio-registry-gradle-plugin' version '1.1.0'
+}
+
+group = 'co.wadcorp.catchtable'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+
+    // 아래에서 생성되는 avro message java 코드의 의존성을 위해 추가되는 dependency
+    implementation 'io.apicurio:apicurio-registry-serdes-avro-serde:2.3.1.Final'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+ext {
+    set('evnetSchemaPath', file("${buildDir}/schema/event"))
+    set('generatedEventCodePath', file('build/event/java'))
+}
+
+// schema registry에서 avsc 파일을 다운받는 코드
+schemaRegistry {
+    config {
+        url("https://apicurio.dev.wadcorp.in/")
+    }
+
+    download {
+        artifacts {
+            artifact {
+                id 'simple_message-value'
+                outputPath = evnetSchemaPath
+            }
+        }
+    }
+}
+
+// 아래는 avsc 파일로부터 java class 파일을 생성하는 코드
+sourceSets.main.java.srcDirs += [generatedEventCodePath]
+
+// https://github.com/davidmc24/gradle-avro-plugin
+// java class 생성에 있어서 상세 설정은 위 링크 참고
+avro {
+    createSetters = false
+    createOptionalGetters = true
+    fieldVisibility = 'PRIVATE'
+    outputCharacterEncoding = 'UTF-8'
+    stringType = 'String'
+}
+
+tasks.register("generateAvroJavaCode", GenerateAvroJavaTask) {
+    dependsOn schemaRegistryDownload
+    source evnetSchemaPath
+    outputDir generatedEventCodePath
+}
+
+compileJava {
+    dependsOn generateAvroJavaCode
+}
