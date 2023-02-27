@@ -10,7 +10,7 @@ public class SimpleMessagePublisher {
 
   private final KafkaTemplate<String, SimpleMessage> kafkaTemplate;
 
-  @Value(value = "${spring.kafka.topics.simple-message}")
+  @Value(value = "${spring.kafka.topics.simple-message.name}")
   private String simpleMessageTopicName;
 
   public SimpleMessagePublisher(KafkaTemplate<String, SimpleMessage> kafkaTemplate) {

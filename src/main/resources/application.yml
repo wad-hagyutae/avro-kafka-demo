@@ -1,8 +1,11 @@
 spring:
   kafka:
     bootstrap-servers: localhost:9092
+    numPartitions: 1
+    replicationFactor: 1
     topics:
-      simple-message: simple_message
+      simple-message:
+        name: simple_message
 
 schema-registry:
   host: http://localhost:9090
