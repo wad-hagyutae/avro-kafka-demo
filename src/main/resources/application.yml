@@ -9,4 +9,3 @@ spring:
 
 schema-registry:
   host: http://localhost:9090
-  uri: /apis/registry/v2

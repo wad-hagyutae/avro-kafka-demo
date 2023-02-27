@@ -32,6 +32,7 @@ public class KafkaTopicConfig {
 
   @Bean
   public NewTopic simpleMessageTopic() {
+    // 실행 시에 토픽이 존재하지 않는다면 생성
     return new NewTopic(simpleMessageTopicName, numPartitions, replicationFactor);
   }
 }

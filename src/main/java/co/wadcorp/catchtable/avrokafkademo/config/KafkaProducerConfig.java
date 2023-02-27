@@ -17,14 +17,15 @@ import org.springframework.kafka.core.ProducerFactory;
 @Configuration
 public class KafkaProducerConfig {
 
+  private static final String REGISTRY_URI = "/apis/registry/v2";
+
   @Value(value = "${spring.kafka.bootstrap-servers}")
   private String bootstrapAddress;
 
   @Value(value = "${schema-registry.host}")
   private String registryHost;
 
-  @Value(value = "${schema-registry.uri}")
-  private String registryUri;
+
 
   @Bean
   public ProducerFactory<String, SimpleMessage> producerFactory() {
@@ -34,7 +35,7 @@ public class KafkaProducerConfig {
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, AvroKafkaSerializer.class.getName());
-    configProps.put(SerdeConfig.REGISTRY_URL, registryHost + registryUri);
+    configProps.put(SerdeConfig.REGISTRY_URL, registryHost + REGISTRY_URI);
     // The lookup strategy to find the global ID for the schema.
     configProps.put(SerdeConfig.FIND_LATEST_ARTIFACT, Boolean.TRUE);
     return new DefaultKafkaProducerFactory<>(configProps);
