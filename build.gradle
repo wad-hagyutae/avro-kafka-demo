@@ -36,7 +36,7 @@ tasks.named('test') {
 }
 
 ext {
-    set('evnetSchemaPath', file("${buildDir}/schema/event"))
+    set('eventSchemaPath', file("${buildDir}/schema/event"))
     set('generatedEventCodePath', file('build/event/java'))
 }
 
@@ -50,7 +50,7 @@ schemaRegistry {
         artifacts {
             artifact {
                 id 'simple_message-value'
-                outputPath = evnetSchemaPath
+                outputPath = eventSchemaPath
             }
         }
     }
@@ -71,7 +71,7 @@ avro {
 
 tasks.register("generateAvroJavaCode", GenerateAvroJavaTask) {
     dependsOn schemaRegistryDownload
-    source evnetSchemaPath
+    source eventSchemaPath
     outputDir generatedEventCodePath
 }
 
